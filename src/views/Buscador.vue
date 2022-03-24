@@ -1,22 +1,33 @@
 <template>
   <v-container>
+    <br />
     <v-row>
-      <v-col
-        class="mx-auto"
-        cols="12"
-        sm="6"
-        md="3"
-        v-for="(pokemon, id) in pokemons"
-        :key="id"
-        justify="center" align="center"
-      >
-        <v-card class="mx-auto" max-width="344" >
-          <div justify="center" align="center" style="background-color:#FF1744;"> 
-          <v-avatar size="140" style="background-color:white">
-          <v-img contain :src="pokemon.sprites.front_default"  height="200px"></v-img>
-          </v-avatar>
+      <v-col cols="4" justify="right" align="right">
+        <v-text-field
+          append-icon="mdi-magnify"
+          label="Buscar proyecto"
+          v-model="search"
+          single-line
+          solo
+        ></v-text-field>
+      </v-col>
+      <v-col cols="3" >
+        <v-btn @click="buscar">Buscar</v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12" justify="center" align="center">
+        <v-card class="mx-auto" max-width="344px">
+          <div
+            justify="center"
+            align="center"
+            style="background-color: #ff1744"
+          >
+            <v-avatar size="140" style="background-color: white">
+              <v-img contain :src="img" height="200px"></v-img>
+            </v-avatar>
           </div>
-          <v-card-title>{{ pokemon.name.toUpperCase()}}</v-card-title>
+          <v-card-title>{{ name }}</v-card-title>
 
           <v-expansion-panels>
             <v-expansion-panel>
@@ -30,16 +41,16 @@
                   <v-col cols="4"
                     ><span class="mx-auto"
                       >ID<br />
-                      {{ pokemon.id }}</span
+                      {{ id }}</span
                     ></v-col
                   >
                   <v-col cols="4"
                     >Altura<br />
-                    {{ pokemon.height }}</v-col
+                    {{ height }}</v-col
                   >
                   <v-col cols="4"
                     >Peso<br />
-                    {{ pokemon.weight }}</v-col
+                    {{ weight }}</v-col
                   >
                 </v-row>
                 <v-row align="center" justify="center">
@@ -47,7 +58,7 @@
                   <v-col cols="8">
                     <v-progress-linear
                       class="mx-auto"
-                      v-model="pokemon.stats[0].base_stat"
+                      v-model="hp"
                       color="#388E3C"
                       height="16"
                     >
@@ -60,7 +71,7 @@
                   <v-col cols="4">Ataque</v-col>
                   <v-col cols="8">
                     <v-progress-linear
-                      v-model="pokemon.stats[1].base_stat"
+                      v-model="attack"
                       color="#F44336"
                       height="16"
                     >
@@ -73,7 +84,7 @@
                   <v-col cols="4">Defensa</v-col>
                   <v-col cols="8">
                     <v-progress-linear
-                      v-model="pokemon.stats[2].base_stat"
+                      v-model="defense"
                       color="#FFEB3B"
                       height="16"
                     >
@@ -85,7 +96,7 @@
                   <v-col cols="4">Ataque especial</v-col>
                   <v-col cols="8">
                     <v-progress-linear
-                      v-model="pokemon.stats[3].base_stat"
+                      v-model="special_attack"
                       color="#E91E63"
                       height="16"
                     >
@@ -97,7 +108,7 @@
                   <v-col cols="4">Defensa especial</v-col>
                   <v-col cols="8">
                     <v-progress-linear
-                      v-model="pokemon.stats[4].base_stat"
+                      v-model="special_defense"
                       color="#AEEA00"
                       height="16"
                     >
@@ -109,7 +120,7 @@
                   <v-col cols="4">Speed</v-col>
                   <v-col cols="8">
                     <v-progress-linear
-                      v-model="pokemon.stats[5].base_stat"
+                      v-model="speed"
                       color="#3F51B5"
                       height="16"
                     >
@@ -125,58 +136,79 @@
         </v-card>
       </v-col>
     </v-row>
-    <!-- <div class="hello" v-for="pokemon in pokemons" :key="pokemon.item">
-      <h1>{{ pokemon.name }}</h1>
-      <v-img :src="pokemon.img" height="200px"></v-img>
-    </div> -->
   </v-container>
 </template>
 
 <script>
-// import todos from "../store/todos";
 export default {
   data() {
     return {
-      userData: [],
-      pokemons: [],
+      search: "bulbasaur",
+      consulta: [],
+      pokemons: [{ name: String }],
       img: "",
-      // show: false,
+      name: "",
+      id: "",
+      height: "",
+      weight: "",
+      base_stat:"",
+      hp:"",
+      attack:"",
+      defense:"",
+      special_attack:"",
+      special_defense:"",
+      speed: ""
+      // nombre:""
     };
   },
-
   created() {
+    var pokemon = this.search.toLowerCase();
+
     this.$store
-      .dispatch("api/GET_POKEMON")
+      .dispatch("api/GET_ABOUT", this.search.toLowerCase())
       .then((response) => {
-        response.results.forEach((element) => {
-          this.userData.push(element); //TODO
-        });
-        this.userData.forEach((pokemon) => {
-          
-          this.$store
-            .dispatch("api/GET_ABOUT", pokemon.name)
-            .then((response) => {
-              this.pokemons.push(response);
-              // pokemon["height"] = response.height;
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        });
+        this.name = response.name;
+        this.img = response.sprites.front_default;
+        this.id = response.id;
+        this.height = response.height;
+        this.weight = response.weight;
+        this.hp = response.stats[0].base_stat;
+        this.attack = response.stats[1].base_stat;
+        this.defense = response.stats[2].base_stat;
+        this.special_attack = response.stats[3].base_stat;
+        this.special_defense = response.stats[4].base_stat;
+        this.speed = response.stats[5].base_stat;
       })
       .catch((error) => {
         console.log(error);
       });
-
-    // console.log("p", this.pokemons);
- 
+      
   },
   methods: {
+    buscar() {
+      // this.consulta.push("");
+      this.$store
+        .dispatch("api/GET_ABOUT", this.search.toLowerCase())
+        .then((response) => {
+          this.name = response.name;
+          this.id = response.id;
+          this.img = response.sprites.front_default;
+          this.height = response.height;
+          this.weight = response.weight;
+                  this.hp = response.stats[0].base_stat;
+        this.attack = response.stats[1].base_stat;
+        this.defense = response.stats[2].base_stat;
+        this.special_attack = response.stats[3].base_stat;
+        this.special_defense = response.stats[4].base_stat;
+        this.speed = response.stats[5].base_stat;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+  computed: {
+    nombre() {},
   },
 };
 </script>
-<style scoped>
-.margen {
-  margin-bottom: 20px;
-}
-</style>

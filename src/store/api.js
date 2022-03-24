@@ -7,9 +7,9 @@ export default{
     namespaced: true,
     actions:{
         
-        GET_USERS(context) {
+        GET_POKEMON(context) {
             return new Promise((resolve, reject) => {
-                Vue.axios.get('https://pokeapi.co/api/v2/pokemon/').then(response => {
+                Vue.axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=20"').then(response => {
                     context
                     resolve(response.data);
                     // console.log("object", response.data);
